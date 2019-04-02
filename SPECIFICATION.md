@@ -37,9 +37,153 @@ Work in Progress
 
 ## Flow
 
-- [Flowchart (work in progress)](https://github.com/Electron-Cash/Electron-Cash/wiki/CashShuffle-Protocol-Flowcharts)
-- Additional flow specifications (work in progress)
-- Example messages for each step in flowchart (work in progress)
+[Flowchart (work in progress)](https://github.com/Electron-Cash/Electron-Cash/wiki/CashShuffle-Protocol-Flowcharts)
+
+### Entering a Shuffle
+
+After the SSL connection is established, the client should send the server a message containing only the `verification key` of the player and the desired amount to shuffle in satoshis, the type of shuffle and the protocol version. This message should be unsigned.
+
+```
+Packets: [
+  Signed{
+    packet: Packet{
+      from_key: VerificationKey{
+        key: verification_key
+      }
+      registration: Registration{
+        amount:  bch_in_sats
+        version: latest_version
+        type:    shuffle_type
+      }
+    }
+  }
+]
+```
+
+If all is well with the verification key, the server should send back an simple message with a session value and the player's number in the pool.
+
+```
+Packets: [
+  Signed{
+    packet: Packet{
+      session: some_UUID
+      number:  number_in_pool
+    }
+  }
+]
+```
+
+If something goes wrong with the handshake, the server should send a blame message and close the connection.
+
+```
+Packets: [
+  Signed{
+    packet: Packet{
+      message: Message{
+        blame: Blame{
+          reason: blame_reason_enum
+        }
+      }
+    }
+  }
+]
+```
+
+### Forming the pool
+
+The server forms pools of a fixed size `N`. Every player who successfully registers should be added to the current pool and receive a confirmation as above. As long as the pool is not yet full, the server should also broadcast a simple message with the new player's number to all players in the pool, including the new player.
+
+```
+Packets: [
+  Signed{
+    packet: Packet{
+      number: new_player_number_in_pool
+    }
+  }
+]
+```
+
+After the pool reaches its limit (`N`), instead of the new player broadcast, the server should broadcast that the pool has entered Phase 1 (Announcement) to all pool participants.
+
+```
+Packets: [
+  Signed{
+    packet: Packet{
+      phase: ANNOUNCEMENT
+      number: pool_size_N
+    }
+  }
+]
+```
+
+### Player messaging
+
+After the client is registered as a player (it has a session UUID and number in the pool)
+it switches to game mode and can send/receive messages. There are two types of messages `broadcast` and
+`unicast`. `broadcast` messages are for everyone in the pool and `unicast` messages are only from one player to another.
+
+Every time the server accepts a message from the client it should check if it has:
+
+- A valid session UUID.
+- A valid verification key.
+- A valid player number.
+- A valid `from_key` field.
+- A valid or null `to_key` field where `to_key` must be in the same pool.
+
+If the message has a null value for `to_key` field, it means that it should be broadcast to every pool member
+If the message does not have a null value for `to_key` it should be unicast to the specified player.
+
+### Blame messages
+
+In the blame phase, players can exclude unreliable players from the pool.
+If server got `N-1` messages from players to exclude a player with verification key `accused_key` then the player with this verification key should be excluded. The message should be in the following form:
+
+```
+packet {
+  packet {
+    session: "session"
+    from_key {
+      key: "from_key"
+    }
+    phase: BLAME
+    message {
+      blame {
+        reason: LIAR
+        accused {
+          key: "excluded_key"
+        }
+      }
+    }
+  }
+}
+Packets: [
+  Signed{
+    packet: Packet{
+      session: session_id
+      from_key: VerificationKey{
+        key: verification_key
+      }
+      phase: BLAME
+      message {
+        blame Blame{
+          reason: LIAR
+          accused VerificationKey{
+            key: accused_key
+          }
+        }
+      }
+    }
+  }
+]
+```
+
+### Losing the connection
+
+If one of the players closes their connection during a round of shuffling then the shuffle is terminated and a new shuffle should be initiated by reconnecting to the server.
+
+### Exiting from the Shuffle
+
+If everything goes well, all the clients will disconnect when shuffling is complete.
 
 ## Definitions / Glossary
 
