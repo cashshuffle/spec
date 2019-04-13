@@ -37,7 +37,7 @@ Work in Progress
 
 ## Flow
 
-[Flowchart (work in progress)](https://github.com/Electron-Cash/Electron-Cash/wiki/CashShuffle-Protocol-Flowcharts)
+[Flowchart (work in progress)](/images/single-player-flowchart.svg)
 
 ### Entering a Shuffle
 
