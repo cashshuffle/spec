@@ -1,5 +1,7 @@
 # CashShuffle specification
 
+This specification is for version 300 of the CashShuffle protocol.
+
 ## Communication
 
 - The server should support TLSv1.2 between the client and server.
@@ -7,6 +9,15 @@
   1. Magic prefix `0x42bcc32669467873`.
   2. 4-bytes specifying the length of the message in bytes in big endian order.
   3. The protobuf payload.
+
+## Shuffle transaction
+
+In order to avoid client identification and ensure compatibility:
+
+- Transactions should use only ECDSA signing.
+- Transactions should use `nLockTime = 0`.
+- Transactions should use `nVersion = 1`.
+- Each input should use `nSequence = 0xfffffffe`.
 
 ## Protobuf payload
 
