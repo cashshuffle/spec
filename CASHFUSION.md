@@ -100,7 +100,7 @@ Message 3 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><PAYLOAD_PLAYER 1>...<P
 
 When this message is received, the client can derive which ordering place he has been assigned by comparing each payload to his own.   
 
-## Phase 4. Covert announcement of inputs 
+## Phase 4. Covert Announcement of Inputs 
 
 Once message 3B has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 9 different instances (one for each input) of the following message:
 
@@ -108,7 +108,7 @@ Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SERIALIZED INPUT>`
 
 Note that only the pool session is required to post this information because it is covert; however only those who registered on the pool should have this unique id for the session.  Also note these are the actual transaction inputs, not hashes.
 
-## Phase 5. Announcement of unsigned transaction 
+## Phase 5. Announcement of Unsigned Transaction 
 
 Once all the inputs have been gathered from all players, they should be announced to everyone
 
@@ -116,7 +116,7 @@ Message 5 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><COMPLETE UNSIGNED TRAN
 
 Note that even if the transactions is missing inputs at this point, we still continue to phase 6, because we need to collect signatures in order to process blame.
 
-## Phase 6. Covert announcement of signatures 
+## Phase 6. Covert Announcement of Signatures 
 
 In this phase, players should convertly announce their transaction signatures (again using TOR), sending 9 different signatures (one for each input) using the following message:
 
