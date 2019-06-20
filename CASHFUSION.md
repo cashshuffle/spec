@@ -148,11 +148,11 @@ After reciving Message 9, the client will extract the proofs that it is responsi
 
 First the client notifies the server:
 
-Message 10A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><INPUT INDEX TO BE BLAMED>`
+Message 10A (from client): `<MESSAGE TYPE><BLAME PUBKEY><POOL_SESSION_ID><INPUT INDEX TO BE BLAMED>`
 
 Then the server notifies all clients with a similar message:
 
-Message 10B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><INPUT INDEX TO BE BLAMED>`
+Message 10B (from server) `<MESSAGE TYPE><BLAME PUBKEY><POOL_SESSION_ID><INPUT INDEX TO BE BLAMED>`
 
 If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order)
 
