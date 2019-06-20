@@ -10,7 +10,7 @@ THE SOLUTION:
 
 This scheme takes a "sharding" approach whereby each player gives each other player only 1 input to verify.  In a group of 10 players, each player has 9 transaction inputs, and each input is validated by 1 other player.  This scheme improves on previous ideas because it does not require trusting the server with information about linkages between inputs.   
 
-## Components of Cash Fusion
+## Components of CashFusion
 
 There are a few "moving parts" needed to implement the solution:
 
@@ -23,7 +23,7 @@ There are a few "moving parts" needed to implement the solution:
 7. Blame
 8. Fees
 
-## Covert announcements of inputs
+## Covert Announcements of Inputs
 
 Each player needs to ultimately share all his inputs with the group because they need to be included in the transaction, but he does not want any other player (or the server) to know his inputs belong to the same user.  
 
@@ -31,11 +31,11 @@ The layered encryption method used in CashShuffle (but repeated for multiple inp
 
 Each player will also have a single transaction output (no change output here) that is announced to the server at the beginning of the process.
 
-## Salted hashes of inputs
+## Salted Hashes of Inputs
 
 Each player will create a set of salted hashes of their transaction inputs, with a separate secret salt value for each input. Once the hashes are computed, they can be ordered, ascending numerically, which provides an immutable ordered list that will be broadcast to the other players.  The ordered list provides a distinct position for each input (e.g. Alice's "first" input and "second" input, etc).  Note this must be done prior to setting up the sharding grid so that players can't change the order after the fact.
 
-## Random ordering of players
+## Random Ordering of Payers
 
 In addition to each player creating an order for her inputs, there needs to be an overall order of the players (Alice is player 1, Bob is player 2, etc).  This can left up to the server, since the server is already generally trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
 
@@ -49,7 +49,7 @@ With the full set of 10 players and 9 inputs, the sharding grid appears as follo
 
 <img src="https://i.imgur.com/H4hJuk7.png">
 
-## Ephemeral encryption keys
+## Ephemeral Encryption Keys
 
 Each input involved in the transaction needs an additional (ephemeral) encryption key, used for the purposes of validation.  
 
