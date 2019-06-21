@@ -102,7 +102,7 @@ When this message is received, the client can derive which ordering place he has
 
 ## Phase 4. Covert Announcement of Inputs 
 
-Once message 3B has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 9 different instances (one for each input) of the following message:
+Once message 3 has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 9 different instances (one for each input) of the following message:
 
 Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SERIALIZED INPUT>`
 
