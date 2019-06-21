@@ -1,6 +1,6 @@
 # CashFusion
 
-Author: Jonald Fyookball and the BCH Wallet Developers
+Authors: Jonald Fyookball and the BCH Wallet Developers
    
 ## Introduction
 
