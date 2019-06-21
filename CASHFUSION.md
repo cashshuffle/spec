@@ -169,4 +169,15 @@ Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG BLAME PUBKEY><EP
 ## Phase 12: Process Blame
 
 After determing who is to blame, the server should terminate the round.
- 
+
+# Discussion
+
+This document is still evolving.  In no particular order, here are a few points which can be clarified:
+
+**1. Announcement of outputs**
+
+**2. Pool size**
+
+**3. Wallet considerations**
+
+**4. Blame**
