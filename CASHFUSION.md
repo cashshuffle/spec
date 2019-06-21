@@ -168,16 +168,28 @@ Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG BLAME PUBKEY><EP
 
 ## Phase 12: Process Blame
 
-After determing who is to blame, the server should terminate the round.
+After determing who is to blame, the client and server should terminate the round.
 
-# Discussion
+# Further Discussion
 
 This document is still evolving.  In no particular order, here are a few points which can be clarified:
 
-**1. Announcement of outputs**
+**1. Announcement of Outputs**
 
-**2. Pool size**
+It may not be clear why outputs are announced at the beginning, but there doesn't appear to be a better way to do it.  For example, including the output in the sharding grid as just another part of the transaction doesn't work well because a new set of problems arises should a malicious actor include an extra output.  
+ 
+**2. Pool Size**
 
-**3. Wallet considerations**
+The same scheme would work with a smaller number of players, and this may be necessary for a time if liquidity is insufficient, while providing some additional privacy.  In the medium-long term, we should strive toward the full 10 players in order to achieve statistically unlinkable inputs.
 
-**4. Blame**
+**3. Wallet Considerations**
+
+When shaving inputs in preparation for a fusion transaction, the wallet should take care to avoid having the standardized output naively marked as "unshuffled", leading to a reshuffling attempt in the normal CashShuffle protocol, and disrupting the fusion.  Also, the change portion of the shaved amount *should* be marked as unshuffled so it can be put into a CashShuffle round.
+
+In addition, we may want to add additional flagging and coin control to best direct the wallet how and when to perform fusions, in order to maximize privacy and UX.
+
+**4. DOS Attacks**
+
+Cash Fusion provides a structure that theoretically allows blame to be assigned to disruptive parties, but there are different ways this can be implemented.  One issue is that when clients keep changing their IP address over TOR, as required by this protocol, banning IPs becomes ineffective.  In the simplest implementation, blame is assigned but is irrelevant because the only action taken is to terminate the round anyway.  Unless the network is under heavy attack, eventually the transactions will succeed due to randomness (eventually only honest players will be in a round together)
+
+In more sophisticated implementations of CashFusion, the offending player can be removed and a replacement player can be added.  An even stronger anti-DOS scheme would involve recursively shrinking the pool size each time someone is blamed, similar to coinshuffle++.  It is also possible for players to reveal all the inputs of the blamed player and utilize UTXO-level banning. 
