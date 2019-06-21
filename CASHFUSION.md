@@ -188,7 +188,7 @@ The same scheme would work with a smaller number of players, and this may be nec
 
 When shaving inputs in preparation for a fusion transaction, the wallet should take care to avoid having the standardized output naively marked as "unshuffled", leading to a reshuffling attempt in the normal CashShuffle protocol, and disrupting the fusion.  Also, the change portion of the shaved amount *should* be marked as unshuffled so it can be put into a CashShuffle round.
 
-In addition, we may want to add additional flagging and coin control to best direct the wallet how and when to perform fusions, in order to maximize privacy and UX.
+As a separate development effort, or in the future, we may want to add additional flagging and coin control to best direct the wallet how and when to perform fusions, in order to maximize privacy and UX.
 
 **4. DOS Attacks**
 
