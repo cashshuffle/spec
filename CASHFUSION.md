@@ -140,7 +140,7 @@ Message 8 (from client): `<MESSAGE TYPE><MESSAGE TYPE><POOL_SESSION_ID><BLAME PU
 
 Then the server sends to all:
 
-Message 9 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY PLAYER 1><PROOF 1>...<PROOF 9>...<BLAME PUBKEY Player 10><PROOF 1>...<PROOF 9>`
+Message 9 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG FOR BLAME PUBKEY PLAYER 1><PROOF 1>...<PROOF 9>...<BLAME PUBKEY Player 10><PROOF 1>...<PROOF 9>`
 
 After reciving Message 9, the client will extract the proofs that it is responsible for, and checks each one.  If it finds no problems, it will assemble the transaction and broadcast it to the BCH network.  Also, very important: the client should also check for any ordering inconsistencies.  If the client finds any issues with either the ordering or the transaction inputs, it assigns blame. 
 
