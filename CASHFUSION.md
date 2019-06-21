@@ -59,7 +59,7 @@ The public ephemeral keys, along with the encrypted proofs, are sent to all play
 
 ## Standardized Input Amounts
 
-All inputs involved in a Cash Fusion round should be identical, for example 0.1 BCH.  Wallets implementing Cash Fusion should take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 9 coins that will be used as inputs.  Standardizing the input amounts solves two problems:  First, it prevents "weakness from uniqueness" whereby the linkages can be logically grouped. Secondly, it ensures that all players are contributing sufficient funds to the transaction, which would be otherwise difficult.
+All inputs involved in a CashFusion round should be identical, for example 0.1 BCH.  Wallets implementing CashFusion should take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 9 coins that will be used as inputs.  Standardizing the input amounts solves two problems:  First, it prevents "weakness from uniqueness" whereby the linkages can be logically grouped. Secondly, it ensures that all players are contributing sufficient funds to the transaction, which would be otherwise difficult.
 
 ## Blame
 
@@ -190,6 +190,6 @@ In addition, we may want to add additional flagging and coin control to best dir
 
 **4. DOS Attacks**
 
-Cash Fusion provides a structure that theoretically allows blame to be assigned to disruptive parties, but there are different ways this can be implemented.  One issue is that when clients keep changing their IP address over TOR, as required by this protocol, banning IPs becomes ineffective.  In the simplest implementation, blame is assigned but is irrelevant because the only action taken is to terminate the round anyway.  Unless the network is under heavy attack, eventually the transactions will succeed due to randomness (eventually only honest players will be in a round together)
+CashFusion provides a structure that theoretically allows blame to be assigned to disruptive parties, but there are different ways this can be implemented.  One issue is that when clients keep changing their IP address over TOR, as required by this protocol, banning IPs becomes ineffective.  In the simplest implementation, blame is assigned but is irrelevant because the only action taken is to terminate the round anyway.  Unless the network is under heavy attack, eventually the transactions will succeed due to randomness (eventually only honest players will be in a round together)
 
 In more sophisticated implementations of CashFusion, the offending player can be removed and a replacement player can be added.  An even stronger anti-DOS scheme would involve recursively shrinking the pool size each time someone is blamed, similar to coinshuffle++.  It is also possible for players to reveal all the inputs of the blamed player and utilize UTXO-level banning. 
