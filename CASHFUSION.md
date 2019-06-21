@@ -35,7 +35,7 @@ Each player will also have a single transaction output (no change output here) t
 
 Each player will create a set of salted hashes of their transaction inputs, with a separate secret salt value for each input. Once the hashes are computed, they can be ordered, ascending numerically, which provides an immutable ordered list that will be broadcast to the other players.  The ordered list provides a distinct position for each input (e.g. Alice's "first" input and "second" input, etc).  Note this must be done prior to setting up the sharding grid so that players can't change the order after the fact.
 
-## Random Ordering of Payers
+## Random Ordering of Players
 
 In addition to each player creating an order for her inputs, there needs to be an overall order of the players (Alice is player 1, Bob is player 2, etc).  This can left up to the server, since the server is already generally trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
 
