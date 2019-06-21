@@ -160,11 +160,11 @@ If the server receives several instance of Message 10A, it should only pick one 
 
 If Alice blames Bob, but Bob is innocent, Bob can refute the blame, while counter-blaming the accuser (Alice).  He does that by sharing his ephemeral private key.
 
-Message 11A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 11A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
 
 The server can then rebroadcast the same message
 
-Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
 
 ## Phase 12: Process Blame
 
