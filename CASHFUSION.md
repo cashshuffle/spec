@@ -96,9 +96,7 @@ If any player fails to send a correctly formatted Message 2, then blame is assig
 
 Once the server has received message 2 from all players, it creates a random order for the players and sends message 3, announcing all payloads for all players, where each payload contains the information sent in Message 2.  
 
-Message 3 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><PAYLOAD_PLAYER 1>...<PAYLOAD_PLAYER 9>`
-
-When this message is received, the client can derive which ordering place he has been assigned by comparing each payload to his own.   
+Message 3 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY PLAYER 1><PAYLOAD_PLAYER 1>...<BLAME PUBKEY PLAYER 10><PAYLOAD_PLAYER 10>`  
 
 ## Phase 4. Covert Announcement of Inputs 
 
