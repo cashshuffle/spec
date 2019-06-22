@@ -132,6 +132,8 @@ Once all the signatures are collected, they can be rebroadcast to all players.
 
 Message 7 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT INDEX 1><SIGNATURE 1>....<INPUT INDEX n><SIGNATURE n>`
 
+If the transaction can be assembled and broadcast by the client to the BCH network, it does so.  Otherwise, we need to assign blame and continue to phase 8.
+
 ## Phase 8. Send Proofs
 
 Each player will create 9 “proofs”.  Each proof shall consist of a serialized input that is encrypted by the appropriate player’s key, based on the sharding grid.
