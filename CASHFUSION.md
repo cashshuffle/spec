@@ -136,7 +136,7 @@ Message 7 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT INDEX 1><SIGNATUR
 
 Each player will create 9 “proofs”.  Each proof shall consist of a serialized input that is encrypted by the appropriate player’s key, based on the sharding grid.
 
-Message 8 (from client): `<MESSAGE TYPE><MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><PROOF 1>...<PROOF 9>`
+Message 8 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><PROOF 1>...<PROOF 9>`
 
 ## Phase 9. Share and Validate Proofs
 
