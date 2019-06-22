@@ -67,7 +67,7 @@ All inputs involved in a CashFusion round should be identical, for example 0.1 B
 
 In this scheme, every input (except fees) is validated by a participant in the fusion.  If an input cannot be validated, the validating player issues a blame message.  If a blame accusation is issued incorrectly, the accused can prove their innocence while simultaneously proving the accuser is incorrect, by revealing the ephemeral private key which can be used to decrypt the input along with the secret salt.  Players can then ensure the input is valid and matches the previously announced hash.    
   
-Because blame accusations require revealing an input, it is best to minimize them.  In the normal case without blame, each player reveals only one input to each counterparty, so no additional information about any linkages is revealed.  If a player is blamed unfairly and must publicly reveal an additional input, then leaks a small amount of information to all participants.  
+Because blame accusations require revealing an input, it is best to minimize them.  In the normal case without blame, each player reveals only one input to each counterparty, so no additional information about any linkages is revealed.  If a player is blamed unfairly and must publicly reveal an additional input, then this leaks a small amount of information to all participants.  
 
 If more than one blame message is issued in the same round, only one blame message needs to be processed.   
 
