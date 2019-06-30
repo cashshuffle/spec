@@ -61,7 +61,7 @@ The public ephemeral keys, along with the encrypted proofs, are sent to all play
 
 ## Standardized Input Amounts
 
-All inputs involved in a CashFusion round should be identical, for example 0.1 BCH.  Wallets implementing CashFusion should take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 9 coins that will be used as inputs.  Standardizing the input amounts solves two problems:  First, it prevents "weakness from uniqueness" whereby the linkages can be logically grouped. Secondly, it ensures that all players are contributing sufficient funds to the transaction, which would be otherwise difficult.
+All inputs involved in a CashFusion round should be identical, for example 0.1 BCH.  Wallets implementing CashFusion should take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 10 coins that will be used as inputs.  Standardizing the input amounts solves two problems:  First, it prevents "weakness from uniqueness" whereby the linkages can be logically grouped. Secondly, it ensures that all players are contributing sufficient funds to the transaction, which would be otherwise difficult.
 
 ## Blame
 
