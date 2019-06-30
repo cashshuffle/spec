@@ -49,7 +49,7 @@ That's a mouthful, but the scheme is simple.  For example, if we had only 3 play
 
 With the full set of 10 players and 9 inputs, the sharding grid appears as follows.  The number inside each cell is the number of the player who must validate the input.
 
-<img src="https://i.imgur.com/H4hJuk7.png">
+<img src="https://raw.githubusercontent.com/cashshuffle/spec/master/shardinggrid.png">
 
 ## Ephemeral Encryption Keys
 
