@@ -109,68 +109,52 @@ Once message 3 has been received, each client should covertly announce their inp
 Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SERIALIZED INPUT>`
 
 Note that only the pool session is required to post this information because it is covert; however only those who registered on the pool should have this unique id for the session.  Also note these are the actual transaction inputs, not hashes.
-
-## Phase 5. Announcement of Unsigned Transaction 
-
-Once all the inputs have been gathered from all players, they should be announced to everyone
-
-Message 5 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><COMPLETE UNSIGNED TRANSACTION>`
-
-Note that even if the transactions is missing inputs at this point, we still continue to phase 6, because we need to collect signatures in order to process blame.
-
-## Phase 6. Covert Announcement of Signatures 
-
-In this phase, players should convertly announce their transaction signatures (again using TOR), sending 9 different signatures (one for each input) using the following message:
-
-Message 6 (from client) `<MESSAGE TYPE><POOL_SESSION_ID><INPUT INDEX><SIGNATURE>`
-
-Note that there is an index that is passed along with the signature so it is clear which signature belongs to which input.
-
-## Phase 7. Sharing the signatures
+ 
+## Phase 5. Sharing the signatures
 
 Once all the signatures are collected, they can be rebroadcast to all players.
 
-Message 7 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT INDEX 1><SIGNATURE 1>....<INPUT INDEX n><SIGNATURE n>`
+Message 5 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT INDEX 1><SIGNATURE 1>....<INPUT INDEX n><SIGNATURE n>`
 
-If the transaction can be assembled and broadcast by the client to the BCH network, it does so.  Otherwise, we need to assign blame and continue to phase 8.
+If the transaction can be assembled and broadcast by the client to the BCH network, it does so.  Otherwise, we need to assign blame and continue to phase 6.
 
-## Phase 8. Send Proofs
+## Phase 6. Send Proofs
 
 Each player will create 9 “proofs”.  Each proof shall consist of a serialized input that is encrypted by the appropriate player’s key, based on the sharding grid.
 
-Message 8 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><PROOF 1>...<PROOF 9>`
+Message 6 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><PROOF 1>...<PROOF 9>`
 
-## Phase 9. Share and Validate Proofs
+## Phase 7. Share and Validate Proofs
 
 Then the server sends to all:
 
-Message 9 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG FOR BLAME PUBKEY PLAYER 1><PROOF 1>...<PROOF 9>...<BLAME PUBKEY Player 10><PROOF 1>...<PROOF 9>`
+Message 7 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG FOR BLAME PUBKEY PLAYER 1><PROOF 1>...<PROOF 9>...<BLAME PUBKEY Player 10><PROOF 1>...<PROOF 9>`
 
-After reciving Message 9, the client will extract the proofs that it is responsible for, and checks each one.   Also, very important: the client should also check for any ordering inconsistencies.  If the client finds any issues with either the ordering or the transaction inputs, it assigns blame. 
+After reciving Message 7, the client will extract the proofs that it is responsible for, and checks each one.   Also, very important: the client should also check for any ordering inconsistencies.  If the client finds any issues with either the ordering or the transaction inputs, it assigns blame. 
 
-## Phase 10. Assign Blame
+## Phase 8. Assign Blame
 
 First the client notifies the server:
 
-Message 10A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
+Message 8A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
 
 Then the server notifies all clients with a similar message:
 
-Message 10B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
+Message 8B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
 
 If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order)
 
-## Phase 11. Refute Blame
+## Phase 9. Refute Blame
 
 If Alice blames Bob, but Bob is innocent, Bob can refute the blame, while counter-blaming the accuser (Alice).  He does that by sharing his ephemeral private key.
 
-Message 11A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 9A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
 
 The server can then rebroadcast the same message
 
-Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 9B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
 
-## Phase 12: Process Blame
+## Phase 10: Process Blame
 
 After determing who is to blame, the client and server should terminate the round.
 
