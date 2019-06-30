@@ -111,6 +111,8 @@ Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SIGNED SERIALIZED INPU
 Note that only the pool session is required to post this information because it is covert; however only those who registered on the pool should have this unique id for the session.  Also note these are the actual transaction inputs, not hashes.
 
 The transaction will use the sighash type ALL|ANYONECANPAY, which reduces the interaction required between players.  Specifically, this allows users to sign the inputs ahead of time without knowing ahead of time all the inputs that will be part of the transaction.  This setup automatically handles the case of users not signing inputs.
+
+Fee inputs are part of the transaction using the same sighash type and are included in this message.
  
 ## Phase 5. Sharing the Inputs
 
@@ -119,6 +121,8 @@ Once all the signatures are collected, they can be rebroadcast to all players.
 Message 5 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT 1>...<INPUT INDEX n>`
 
 The client should check all signatures (this should be fast due to libsecp256k1) before broadcasting the transaction.  Note that it is possible to have extra bogus inputs (invalid or missing signatures) but those can be just discarded.  The transaction will still work if it has enough valid inputs, and should be executed if valid.  Thus, the client code needs to loop through the set and determine if it can assemble the transaction.  
+
+In addition, we should be explicity checking for n inputs of standard size rather than allowing the edge case of some less-than-standard-size inputs getting it and being offset by fees to make a transaction valid, because this will make it unclear who to blame.
 
 If the client finds any problems, we need to assign blame and continue to phase 6.
 
