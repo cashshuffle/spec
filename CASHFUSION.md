@@ -102,7 +102,7 @@ Message 3 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><PAYLOAD_PLAYER 1>...<P
 
 The Blame Pubkey is included in the payload, which helps to identify each player, while the ordering of the message itself refelects the ordering of the players.
 
-## Phase 4. Covert Announcement of Inputs 
+## Phase 4. Covert Announcement of Signed Inputs 
 
 Once message 3 has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 9 different instances (one for each input) of the following message:
 
@@ -112,7 +112,7 @@ Note that only the pool session is required to post this information because it 
 
 The transaction will use the sighash type ALL|ANYONECANPAY, which reduces the interaction required between players.  Specifically, this allows users to sign the inputs ahead of time without knowing ahead of time all the inputs that will be part of the transaction.  This setup automatically handles the case of users not signing inputs.
  
-## Phase 5. Sharing the signatures
+## Phase 5. Sharing the Inputs
 
 Once all the signatures are collected, they can be rebroadcast to all players.
 
