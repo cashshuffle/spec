@@ -159,7 +159,9 @@ The client should check all signatures (this should be fast due to libsecp256k1)
 
 ## Phase 6. Invoke Blame Process
 
-If the client finds any problems ih phase 5, we need to invoke the blame portion of the protocol.
+If the client finds any problems ih phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
+
+An interesting edge case arises when the same UTXO appears in more than one input.  If that happens, we enter the blame phase.
 
 Message 6 (from server) `<MESSAGE TYPE><POOL SESSION_ID>`
 
