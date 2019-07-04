@@ -203,11 +203,13 @@ Message 10B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLA
 
 If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order).  
 
-In the "repeated UTXO" edge case (which we mentioned in phase 6), the mere presence of 2 valid signed inputs indicates maliciousness; it is not necessary to specifically determine which members of this set satisfy their commitments.  Instead, clients should assign blame via Message 10A if they receive any proof containing such a repeat.  Nothing special is required to indicate the edge case because all players will see the duplicated UTXO.  When the message comes in blaming the index, the other clients will understand the reason and do not even have to verify the blame message's accuracy as they usually would do.  Also, note that this kind of blame cannot be refuted.
+In the "repeated UTXO" edge case (which we mentioned in phase 6), the mere presence of 2 valid signed inputs indicates maliciousness; it is not necessary to specifically determine which members of this set satisfy their commitments.  Instead, clients should assign blame via Message 10A if they receive any proof containing such a repeat.  Nothing special is required to indicate the edge case because all players will see the duplicated UTXO.  When the message comes in blaming the index, the other clients will understand the reason and do not even have to verify the blame message's accuracy as they usually would do.  (This special kind of blame cannot be refuted.)
+
+Note that this edge case must have multiple **valid signed** inputs.  In the case when 2 or more inputs share the same UTXO but only 1 is valid, the protocol proceeds with a normal blame message.
 
 ## Phase 11. Refute Blame
 
-If Alice blames Bob, but Bob is innocent, Bob can refute the blame, while counter-blaming the accuser (Alice).  He does that by sharing his ephemeral private key.
+For the normal case of an invalid proof:  if Alice blames Bob, but Bob is innocent, Bob can refute the blame, while counter-blaming the accuser (Alice).  He does that by sharing his ephemeral private key.
 
 Message 11A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
 
