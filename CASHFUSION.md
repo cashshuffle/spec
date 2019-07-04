@@ -157,6 +157,8 @@ Message 5 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT 1>...<INPUT INDEX
 
 The client should check all signatures (this should be fast due to libsecp256k1) before broadcasting the transaction.  Note that it is possible to have extra bogus inputs (invalid or missing signatures) but those can be just discarded.  The transaction will still work if it has enough valid inputs, and should be executed if valid.  Thus, the client code needs to loop through the set and determine if it can assemble the transaction.  
 
+If the transaction is valid, the client should broadcast it to the BCH network.  Note the client doesn't have to check if the transaction was accepted or was malleated.  Last second invalidations are always possible due to the race condition of double spending.
+
 ## Phase 6. Invoke Blame Process
 
 If the client finds any problems ih phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
