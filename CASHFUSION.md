@@ -43,7 +43,7 @@ An additional requirement is that players need to commit to a certain order for 
 
 Our goals can be met as follows:
 
-The commitment for each input X is based on a set of 2 secret numbers A, and B, such that X ⊕ A ⊕ B = 0.  (A can be chosen first as a random number, and B calculated as X ⊕ A.)  A is encrypted with public key k ("commitment key"), which a unique ephemeral key.  The resulting ciphertext (A') is announced along with, and at the same time that the input itself is coveretly announced.  B is announced separately as part of a list, which we can call the B list.  
+The commitment for each input X is based on a set of 2 secret numbers A, and B, such that X ⊕ A ⊕ B = 0.  (B can be chosen first as a random number, and A calculated as X ⊕ B.)  A is encrypted with public key k ("commitment key"), which a unique ephemeral key.  The resulting ciphertext (A') is announced along with, and at the same time that the input itself is coveretly announced.  B is announced separately as part of a list, which we can call the B list.  
 
 The B list consists of 10 random numbers B<sub>1</sub>... ...B<sub>10</sub> where each element represents a unique B value.  Unlike the A component, no actual inputs are included here.  The list is simply a set of 10 random numbers, which by itself reveals zero knowledge.  This list also serves the secondary functioning of commiting to an input order (the first item in the list is part of the commitment for the "first" input, the second item for the second input, and so on.)
 
