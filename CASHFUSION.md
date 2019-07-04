@@ -29,7 +29,7 @@ There are a few "moving parts" needed to implement the solution:
 
 Each player needs to ultimately share all his inputs with the group because they need to be included in the transaction, but he does not want any other player (or the server) to know his inputs belong to the same user.  
 
-The layered encryption method used in CashShuffle (but repeated for multiple inputs) may be unwiedly here because it could take a long time to perform layered encryption on 110 different inputs, and this could create a large DOS attack surface.   Instead, players can simply announce their inputs to the server over TOR using a different route for each input.  Delays can be added to thwart timing attacks.  
+The layered encryption method used in CashShuffle (but repeated for multiple inputs) may be unwiedly here because it could take a long time to perform layered encryption on 110 different inputs, and this could create a large DOS attack surface.   Instead, players can simply announce their inputs to the server over TOR using a different route for each input.  In fact, the entire protocol can take place over TOR. Delays can be added to thwart timing attacks.  
 
 Each player will also have a single transaction output (no change output here) that is announced to the server at the beginning of the process.
 
@@ -133,7 +133,7 @@ The Blame Pubkey is included in the payload, which helps to identify each player
 
 ## Phase 4. Covert Announcement of Signed Inputs 
 
-Once message 3 has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 10 different instances (one for each input) of the following message:
+Once message 3 has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 11 different instances (one for each input of standard size, plus one input for the fee) of the following message:
 
 Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SIGNED SERIALIZED INPUT><ENCRYPTED A_VALUE>`
 
