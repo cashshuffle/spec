@@ -161,7 +161,7 @@ If the transaction is valid, the client should broadcast it to the BCH network. 
 
 ## Phase 6. Invoke Blame Process
 
-If the client finds any problems ih phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
+If the client finds any problems in phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
 
 An interesting edge case arises when the same UTXO appears in more than one input.  If that happens, we also enter the blame phase. 
 
