@@ -163,7 +163,7 @@ If the transaction is valid, the client should broadcast it to the BCH network. 
 
 If the client finds any problems ih phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
 
-An interesting edge case arises when the same UTXO appears in more than one input.  If that happens, we enter the blame phase.
+An interesting edge case arises when the same UTXO appears in more than one input.  If that happens, we also enter the blame phase. 
 
 Message 6 (from server) `<MESSAGE TYPE><POOL SESSION_ID>`
 
@@ -201,7 +201,9 @@ Then the server notifies all clients with a similar message:
 
 Message 10B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
 
-If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order)
+If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order).  
+
+In the "repeated UTXO" edge case (which we mentioned in phase 6), the mere presence of 2 valid signed inputs indicates maliciousness; it is not necessary to specifically determine which members of this set satisfy their commitments.  Instead, clients should assign blame via Message 10A if they receive any proof containing such a repeat.  Nothing special is required to indicate the edge case because all players will see the duplicated UTXO.  When the message comes in blaming the index, the other clients will understand the reason and do not even have to verify the blame message's accuracy as they usually would do.  Also, note that this kind of blame cannot be refuted.
 
 ## Phase 11. Refute Blame
 
