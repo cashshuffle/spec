@@ -38,7 +38,7 @@ With the full set of 11 players and 10 inputs, the sharding grid appears as foll
 
 Setting up the sharding grid requires two things:  First, a distinct order of each players' inputs (as discussed in the previous section).  Secondly, an overall order of the players so it is clear who is player 1, etc.  The ordering of the players must be established only after all the inputs and commitments are announced to avoid collusion attacks.  For example, if Bob colludes with Alice and knows ahead of time which input of Alice he will validate, he can spoof that commitment.  
 
-The ordering of players can be performed by server, since it is already trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
+The ordering of players can be performed by the server, since it is already trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
 
 ## Additional Components
 
