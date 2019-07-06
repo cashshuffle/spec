@@ -82,7 +82,7 @@ Players connect to and register on the pool, while announcing their output addre
 
 To prepare, each player will serialize each of his signed inputs, generate a unique random salt for each input, and from that, a salted hash for each input.   The list of salted hashes should then be put in a random order. Each player will also create 10 "communication keys", one for each input they will validate , plus one additional key for identity ("identity key").
 
-Message 2 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><IDENTITY_KEY><COMMUNICATION_KEY_1>...<COMMUNICATION_KEY_10><IDENTITY_SIGNATURE>`
+Message 2 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><IDENTITY_KEY><SALTED_HASH_1>...<SALTED_HASH_10><COMMUNICATION_KEY_1>...<COMMUNICATION_KEY_10><IDENTITY_SIGNATURE>`
 
 In this phase and all subsequent phases that include `<IDENTITY_SIGNATURE>`, the signature is the final piece of the message.  It is a schnorr secp256k1 signature over the entire preceeding section of the message.
 
