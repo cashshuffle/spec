@@ -108,7 +108,7 @@ The transaction will use the sighash type ALL|ANYONECANPAY, which reduces the in
 
  ## Phase 5. Sharing the Inputs, Ordering the Players, and Executing the Transaction
 
-The purpose of this phase is primarily to rebroadcast all the inputs to all the players.  Secondarily, the server also generates and shares a random ordering of the players, which will be used later in the blame phases, if blame is necessary.
+The purpose of this phase is primarily to rebroadcast all the inputs to all the players so they can assemble and broadcast the transaction.  Secondarily, the server also generates and shares a random ordering of the players, which will be used later in the blame phases, if blame is necessary.
 
 As opposed to rebroadcasting each covertly announced input as it arrives, the server rebroadcasts them all together.  This limits the possibility of timing attacks to the server itself, which can be further mitigated by announcing inputs randomly within a specified time window (such as 15 seconds).  The server sends Message 5 when this window expires.  
 
