@@ -157,7 +157,7 @@ Message 8B (from server) `<MESSAGE_TYPE><POOL_SESSION_ID><IDENTITY_KEY><FAULTY_S
 
 If the server receives several instance of Message 8A, it can ignore the subsequent messages and simply rebroadcast 8B based on the first instance of blame it sees.  
 
-Regarding the edge cases of multiple inputs with the same UTXO:  They are mostly all handled by entering the blame phases upon witnessing them.  However, there is one particular case that needs special treatment, and that is when Alice produces **multiple valid signed inputs**.  In this case, the client still sends Message 8A as normal, but all clients need to be aware when edge case is in play.  That way, if Alice attempts to counter-blame,  clients can still award blame to Alice when checking her claim.  (Even though she might have a valid counter-proof, she cheated by submitting multiple UTXO).  
+Regarding the edge cases of multiple inputs with the same UTXO:  They are mostly all handled by entering the blame phases upon witnessing them.  However, there is one particular case that needs special treatment, and that is when Alice produces multiple valid signed inputs.  In this case, the client still sends Message 8A as normal, but all clients need to be aware when edge case is in play.  That way, if Alice attempts to counter-blame,  clients can still award blame to Alice when checking her claim.  (Even though she might have a valid counter-proof, she cheated by submitting multiple UTXO).  
 
 Note that this edge case must have multiple **valid signed** inputs.  In the case when 2 or more inputs share the same UTXO but only 1 is valid, the protocol proceeds with a normal blame message since there is no ambiguity.
 
