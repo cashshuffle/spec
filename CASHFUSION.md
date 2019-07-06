@@ -1,6 +1,6 @@
 # CashFusion
 
-Authors: Jonald Fyookball and the BCH Wallet Developers
+Authors: Jonald Fyookball, Mark B. Lundeberg
    
 ## Introduction
 
@@ -12,114 +12,79 @@ THE SOLUTION:
 
 This scheme takes a "sharding" approach whereby each player gives each other player only 1 input to verify.  In a group of 11 players, each player has 10 transaction inputs, and each input is validated by 1 other player.  This scheme improves on previous ideas because it does not require trusting the server with information about linkages between inputs.   
 
-## Components of CashFusion
-
-There are a few "moving parts" needed to implement the solution:
-
-1. Covert announcements of inputs
-2. Commitment scheme
-3. Random ordering of players
-4. Sharding grid
-5. Ephemeral encryption keys
-6. Standardized input amounts
-7. Blame
-8. Fees
-
-## Covert Announcements of Inputs
-
-Each player needs to ultimately share all his inputs with the group because they need to be included in the transaction, but he does not want any other player (or the server) to know his inputs belong to the same user.  
-
-The layered encryption method used in CashShuffle (but repeated for multiple inputs) may be unwiedly here because it could take a long time to perform layered encryption on 110 different inputs, and this could create a large DOS attack surface.   Instead, players can simply announce their inputs to the server over TOR using a different route for each input.  In fact, the entire protocol can take place over TOR. Delays can be added to thwart timing attacks.  
-
-Each player will also have a single transaction output (no change output here) that is announced to the server at the beginning of the process.
 
 ## Commitment Scheme
 
-Within CashFusion, the commitment scheme must allow each player to prove they submitted 10 unique inputs which are part of the total set of inputs submitted by all the players for the joined transaction.  Each player is expected to reveal each input to a separate verifying party.
+Within CashFusion, the cryptographic commitment scheme must allow each player to prove they submitted 10 unique inputs which are part of the total set of inputs submitted by all the players for the joined transaction.  Each player is expected to reveal each input to a separate verifying party.
 
-This is a challenging requirement in of itself.  For example, if the commitment was simply a hash value, then it could be trivially broken with a dictionary attack, since the data set is small (100 inputs).  Using salted hashes prevents this attack, but opens a new attack vector in which a player commits the same input more than once.  (The salts prevent what is commited from being necessarily unique, and the non-uniqueness would be undectable since the information about each input is revealed to different parties.)
+This is primarily accomplished by having each player commit a list of 10 hashes ("list commitment").  Each item in the list is a salted hash of one of their inputs, with a separate secret value for each.  To prove they included the input in the transaction, the player reveals the secret salt value along with which input it corresponds to.  The verifier can then reconstruct the hash value and verify it matches.
 
-An additional requirement is that players need to commit to a certain order for their inputs.  In other words, Alice needs to identity which is her "first" input, her "second" input etc, and commit to it early in the process so that collusion attacks are prevented.  For example, if Bob colludes with Alice and knows ahead of time which input of Alice he will validate, he can spoof that commitment.
+But, this initial commitment still has a problem.  Alice could hash the same input two (or more) different ways with two different salts, and then present one to Bob and one to Carol.  Since neither Bob nor Carol can see each other's verification of Alice's inputs, they won't know the inputs are the same.  Thus, Alice can avoid having others detect that not all her inputs are unique. 
 
-Our goals can be met as follows:
+Fortunately, we can prevent this problem with a second commitment ("salt commitment"), which is a (non-salted) hash of the secret salt value used in the first commitment.  
 
-The commitment for each input X is based on a set of 2 secret numbers A, and B, such that X ⊕ A ⊕ B = 0.  (B can be chosen first as a random number, and A calculated as X ⊕ B.)  A is encrypted with public key k ("commitment key"), which a unique ephemeral key.  The resulting ciphertext (A') is announced along with, and at the same time that the input itself is coveretly announced.  B is announced separately as part of a list, which we can call the B list.  
-
-The B list consists of 10 random numbers B<sub>1</sub>... ...B<sub>10</sub> where each element represents a unique B value.  Unlike the A component, no actual inputs are included here.  The list is simply a set of 10 random numbers, which by itself reveals zero knowledge.  This list also serves the secondary functioning of commiting to an input order (the first item in the list is part of the commitment for the "first" input, the second item for the second input, and so on.)
-
-To reveal an input, the player simply sends X ,A, and k to the verifier. 
-
-For example, imagine Bob is responsible for verifying Alice's first input.  (We will discuss later how this came to be in the sharding grid section).   
-
-Recall that the A number that was announced along with the actual input is encrypted as A', and since the input was covertly announced, it has no linkage to any other input.  No one knows it belongs to Alice, let alone that it is her "first" input.  
-
-Alice gives the key k to Bob, and now Bob can check that A' = Ek(A), and also that X ⊕ A ⊕ B = 0.
-
-Can Alice cheat by submitting the same input to both Bob and Carol?  No, because the input itself is attached to a commitment that can only be decrypted to a single value, and that won't work with 2 different values in the B list.  
-
-Or, more formally: if X is the input Alice wishes to double submit, we have:
-
- X ⊕ A<sub>1</sub> ⊕ B<sub>1</sub> = 0
+While the list commitment is associated with a player but not publicly linked to any specific inputs, the salt commitment is announced with and "attached" to an input itself, but not publicly linked to any specific player.  Alice is now prevented from using two different salts for the same input, because the verifier also checks that the secret salt hashes to the salt commitment for the input.
  
- X ⊕ A<sub>2</sub> ⊕ B<sub>2</sub> = 0
-
-But, since B<sub>1</sub> ≠ B<sub>2</sub> (the values in the B list must all be unique), then A<sub>1</sub> ≠ A<sub>2</sub>.  Therefore, A' = Ek(A<sub>1</sub>) → A' ≠ Ek(A<sub>2</sub>).
+Finally, each player needs to commit to a certain order for their inputs.  This is automatically handled because the list of salted hashes has an order.  We'll see why this is important in the following section.
 
 
-## Random Ordering of Players
+## Sharding Grid
 
-In addition to each player creating an order for her inputs, there needs to be an overall order of the players (Alice is player 1, Bob is player 2, etc).  This can left up to the server, since the server is already generally trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
-
-## Setting up the Sharding Grid
-
-Once we have the order of players and the order of each players' inputs, then we can set up a "sharding grid" which assigns a verifing party to each input.   Each input is encrypted and sent for verification to the player with a corresponding relative index (the sending players' index plus the index of their input using modular arithmetic).  
-
-That's a mouthful, but the scheme is simple.  For example, if we had only 3 players: Alice (1), Bob (2), and Carol(3), then,  Alice sends input 1 to Bob, and input 2 to Carol.  Bob sends his input 1 to Carol, and his input 2 to Alice.  Carol sends her input 1 to Alice and input 2 to Bob.
+The sharding grid is a simple way to assign a verifying party to each input.  Specifically, each input is verified by a player with a corresponding relative index (the sending players' index plus the index of their input using modular arithmetic).  For instance, if we had only 3 players: Alice (1), Bob (2), and Carol(3), then,  Alice sends input 1 to Bob, and input 2 to Carol.  Bob sends his input 1 to Carol, and his input 2 to Alice.  Carol sends her input 1 to Alice and input 2 to Bob.
 
 With the full set of 11 players and 10 inputs, the sharding grid appears as follows.  The number inside each cell is the number of the player who must validate the input.
 
 <img src="https://raw.githubusercontent.com/cashshuffle/spec/master/shardinggrid.png">
 
-## Ephemeral Encryption Keys
+Setting up the sharding grid requires two things:  First, a distinct order of each players' inputs (as discussed in the previous section).  Secondly, an overall order of the players so it is clear who is player 1, etc.  The ordering of the players must be established only after all the inputs and commitments are announced to avoid collusion attacks.  For example, if Bob colludes with Alice and knows ahead of time which input of Alice he will validate, he can spoof that commitment.  
 
-Each input involved in the transaction requires an ephemeral encryption key, used for secure communication to the validating party.  
+The ordering of players can be performed by server, since it is already trusted to be non-disruptive.  (Theoretically, the ordering could also can be generated with some additional steps in a trustless fashion via secret sharing.)
 
-Each player creates a set of keypairs (one for each input they are responsible for validating), and then shares the public keys with the group.  Separately, each player also creates a set of encrypted proofs (one for each of their own inputs) by encrypting the input along with its secret value and commitment key, using the communication public key of the validating player. 
+## Additional Components
 
-The public ephemeral keys, along with the encrypted proofs, are sent to all players so that blame can be accurately assigned and witnessed by all.    
+**1. Inputs and Outputs**
 
-## Standardized Input Amounts
+Inputs and outputs should be announced to the server over TOR to avoid the server learning the linkages from the clients' IP addresses.  Delays can be added to thwart timing attacks. (Layered encryption à la CashShuffle is probably too slow.) 
 
-All inputs involved in a CashFusion round should be identical, for example 0.1 BCH.  Wallets implementing CashFusion should take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 10 coins that will be used as inputs.  Standardizing the input amounts solves two problems:  First, it prevents "weakness from uniqueness" whereby the linkages can be logically grouped. Secondly, it ensures that all players are contributing sufficient funds to the transaction, which would be otherwise difficult.
+Outputs can't be treated the same as inputs because a new set of problems would arise based on a malicious actor including extra outputs.  Instead, each player will announce a single transaction output (no change output) at the beginning of the process.  
 
-## Blame
+All inputs involved in a CashFusion round should be identical, for example 0.1 BCH.  This prevents "weakness from uniqueness" whereby the linkages can be logically grouped. It also ensures that all players are contributing sufficient funds to the transaction, which would otherwise be difficult.
 
-In this scheme, every input (except fees) is validated by a participant in the fusion.  If an input cannot be validated, the validating player issues a blame message.  If a blame accusation is issued incorrectly, the accused can prove their innocence while simultaneously proving the accuser is incorrect, by revealing the ephemeral private key which can be used to decrypt the input along with the secret salt.  Players can then ensure the input is valid and matches the previously announced hash.    
-  
-Because blame accusations require revealing an input, it is best to minimize them.  In the normal case without blame, each player reveals only one input to each counterparty, so no additional information about any linkages is revealed.  If a player is blamed unfairly and must publicly reveal an additional input, then this leaks a small amount of information to all participants.  
+Wallets implementing CashFusion can take existing UTXOs of slightly larger amounts and "shave" off some change in order to assemble a group of 10 coins that will be used as inputs.   Here, the wallet should take care to avoid having the standardized output naively marked as "unshuffled", leading to a reshuffling attempt in the normal CashShuffle protocol, and disrupting the fusion.  Also, the change portion of the shaved amount *should* be marked as unshuffled so it can be put into a CashShuffle round.
 
-If more than one blame message is issued in the same round, only one blame message needs to be processed.   
+Each player should contribute one fee input, covertly announced along with his other inputs.  The protocol does not enforce the inclusion of a fee, but theoretically could by including it in the scheme.
 
-## Fees
+**2. Ephemeral Encryption Keys**
 
-Fees can be covertly announced to avoid any additional linkage issues between other inputs.  Each player would contribute one small input to cover the fee and expect no change. Enforcing fees could overcomplicate the protocol.  For now, we propose simply including the proper fee in the software implemenation.  Theoretically, in the future, fees could be enforced with the same sharding idea, with each player having one other random player verify their fee. 
+Every input will have a "communication" keypair created by the verifier.  This allows input proofs to be encrypted by its owner, sent to the server, and rebroadcast to all players (but only the verifier can decrypt the message).  Although only one player (the input's owner) will be using the public key in this manner, all players receive the public key so that blame can be accurately assigned and witnessed by all. The private key can be revealed to counter-blame any false blame accusations.
+
+There is also an "identity" keypair to ensure that critical messages can't be spoofed by other players.
+
+**3. Blame and DOS**
+
+Whereas a successful fusion and even a blame reveal zero knowledge, a counter-blame leaks some information to all players.  Consequently, only 1 set of blame/counter-blame should be processed per round.  
+
+CashFusion provides a structure that theoretically allows blame to be assigned to disruptive parties, but there are different ways this can be implemented.  One issue is that when clients keep changing their IP address over TOR, as required by this protocol, banning IPs becomes ineffective.  In the simplest implementation, blame is assigned but is irrelevant because the only action taken is to terminate the round anyway.  Unless the network is under heavy attack, eventually the transactions will succeed due to randomness (eventually only honest players will be in a round together)
+
+In more sophisticated implementations of CashFusion, the offending player can be removed and a replacement player can be added.  An even stronger anti-DOS scheme would involve recursively shrinking the pool size each time someone is blamed, similar to coinshuffle++.  It is also possible for players to reveal all the inputs of the blamed player and utilize UTXO-level banning. 
 
 # Protocol Phases
 
 ## Phase 1.  Registration on the Pool 
 
-Message 1A (from client):  ( `<MESSAGE TYPE><“REGISTER”><COIN_SIZE><OUTPUT_ADDRESS>` )
+Message 1A (from client): `<MESSAGE_TYPE><COIN_SIZE><OUTPUT_ADDRESS>` 
 
-Message 1B (from server): ( `<MESSAGE TYPE><“POOL READY”><POOL_SESSION_ID><LIST_OF_OUTPUT_ADDRESSES>` )
+Message 1B (from server): `<MESSAGE_TYPE><POOL_SESSION_ID><LIST_OF_OUTPUT_ADDRESSES>`
 
-Players connect to and register on the pool, while announcing their output address.  The server should refuse to register players with banned IP addresses (because of blame from a recent round).  Once 10 players register on the pool, the server can announce the list of 10 output addresses to all players. 
+Players connect to and register on the pool, while announcing their output address.   Once 11 players register on the pool, the server can announce the list of 11 output addresses to all players. 
 
+## Phase 2. Announce Salted Hashes and Communication Keys 
 
-## Phase 2. Announce "B List" Commitments and Ephemeral Keys 
+To prepare, each player will serialize each of his signed inputs, generate a unique random salt for each input, and from that, a salted hash for each input.   The list of salted hashes should then be put in a random order. Each player will also create 10 "communication keys", one for each input they will validate , plus one additional key for identity ("identity key").
 
-Each player will create a "B list" (see commitment scheme above) which is a list of 10 random numbers.  Each player will also create 10 ephemeral encryption keys, one for each input they will validate, plus one additional key for blaming ("blame PubKey").
+Message 2 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><IDENTITY_KEY><COMMUNICATION_KEY_1>...<COMMUNICATION_KEY_10><IDENTITY_SIGNATURE>`
 
-Message 2 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><PUBKEY E1>...<PUBKEY E10><B_LIST_VALUES>`
+In this phase and all subsequent phases that include `<IDENTITY_SIGNATURE>`, the signature is the final piece of the message.  It is a schnorr secp256k1 signature over the entire preceeding section of the message.
 
 If any player fails to send a correctly formatted Message 2, then blame is assigned to that player and the round aborts.
 
@@ -129,118 +94,84 @@ Once the server has received message 2 from all players, it sends message 3, ann
 
 Message 3 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><PAYLOAD_PLAYER 1>...<PAYLOAD_PLAYER 11>`  
 
-The Blame Pubkey is included in the payload, which helps to identify each player, while the ordering of the message itself refelects the ordering of the players.
-
 ## Phase 4. Covert Announcement of Signed Inputs 
 
-Once message 3 has been received, each client should covertly announce their inputs (using TOR), and only the POOL_ID, sending 11 different instances (one for each input of standard size, plus one input for the fee) of the following message:
+Once message 3 has been received, each client should covertly announce their inputs (using TOR), sending 11 different instances (one for each input of standard size, plus one input for the fee) of the following message:
 
-Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SIGNED SERIALIZED INPUT><ENCRYPTED A_VALUE>`
+Message 4 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><SIGNED_SERIALIZED_INPUT><SALT_COMMITMENT>`
 
-(The encrypted "A value" is described previously in the commitment scheme.)
+The salt commitment at the end of this message is a SHA-256 hash of the secret salt value generated in phase 2 for each input.
 
 Note that only the pool session is required to post this information because it is covert; however only those who registered on the pool should have this unique id for the session.  
 
-The transaction will use the sighash type ALL|ANYONECANPAY, which reduces the interaction required between players.  Specifically, this allows users to sign the inputs ahead of time without knowing ahead of time all the inputs that will be part of the transaction.  This setup automatically handles the case of users not signing inputs.
+The transaction will use the sighash type ALL|ANYONECANPAY, which reduces the interaction required between players.  Specifically, this allows users to sign the inputs without knowing ahead of time all the inputs that will comprise the transaction.  This setup automatically handles the case of users not signing inputs.
 
-Fee inputs are part of the transaction using the same sighash type and are included in this message.
- 
-## Phase 5. Sharing the Inputs
+ ## Phase 5. Sharing the Inputs, Ordering the Players, and Executing the Transaction
 
-Clients should announce all inputs to the server within a specified time window (for example 15 seconds), after which the server closes the announcement window, and proceeds to rebroadcast all the inputs to all players.
+The purpose of this phase is primarily to rebroadcast all the inputs to all the players.  Secondarily, the server also generates and shares a random ordering of the players, which will be used later in the blame phases, if blame is necessary.
 
-Rebroadcasting all inputs together (rather than one at a time as each comes in) helps prevent timing timing attacks since only the server would know the times.  The input announcements should have stagerred delays to mitigate timing attacks from the server itself.  Also, this approach prevents Bob from maliciously re-submitting Alice's input with his own (incorrect) commitment "A" value.  In the case where Alice resubmits her own input (or Bob resubmits Alice's transaction from a prior round with a now-bogus signature), the server should include all the inputs and let the blame phases handle the problem.
+As opposed to rebroadcasting each covertly announced input as it arrives, the server rebroadcasts them all together.  This limits the possibility of timing attacks to the server itself, which can be further mitigated by announcing inputs randomly within a specified time window (such as 15 seconds).  The server sends Message 5 when this window expires.  
 
-Message 5 (from server) `<MESSAGE TYPE><POOL SESSION_ID><INPUT 1>...<INPUT INDEX n>`
+Rebroadcasting all inputs together also prevents Bob from maliciously re-submitting Alice's input with his own salt commitment.  In the case where Alice resubmits her own input (or Bob resubmits Alice's input from a prior round with a bogus signature), the server should include all the submitted inputs (including duplicates) and let the blame phases handle the problem.
 
-(Input here means serialized input plus the encrypted A value).
+Message 5 (from server) `<MESSAGE_TYPE><POOL_SESSION_ID><INPUT_1><SALT_COMMITMENT_1>...<INPUT_11><SALT_COMMITMENT_11><IDENTITY_KEY_1>...<IDENTITY_KEY_11>`
 
-The client should check all signatures (this should be fast due to libsecp256k1) before broadcasting the transaction.  Note that it is possible to have extra bogus inputs (invalid or missing signatures) but those can be just discarded.  The transaction will still work if it has enough valid inputs, and should be executed if valid.  Thus, the client code needs to loop through the set and determine if it can assemble the transaction.  
+The list of identity keys at the end of this message designates the order of the players.  This is used in the next phase in case of blame.  In the normal case when the fusion is successful, the ordering isn't used.
 
-If the transaction is valid, the client should broadcast it to the BCH network.  Note the client doesn't have to check if the transaction was accepted or was malleated.  Last second invalidations are always possible due to the race condition of double spending.
+Once the client receives Message 5, it should check all signatures before broadcasting the transaction.  Note that it is possible to have extra bogus inputs but those can be just discarded.   If a valid transaction can be constructed on the basis of valid inputs, the client should do so, and broadcast it to the BCH network.  The client doesn't have to check if the transaction was accepted by the BCH network, nor if it was malleated.  Last second invalidations are always possible due to the race condition of double spending.
 
-## Phase 6. Invoke Blame Process
+A set of edge cases arises when the same UTXO appears in more than one input.  If that happens, the client knows it needs to enter the blame phases.  In fact, it might be most efficient for the client to first check for any duplicate UTXO, since their presence automatically triggers blame.
 
-If the client finds any problems in phase 5, we need to invoke the blame portion of the protocol.  How do we know whether or not to enter the blame phases?  We simply determine if the transaction is valid on the basis of valid inputs.  If invalid inputs can be discarded but the transaction is still valid without them, there is no blame.
+## Phase 6. Send Proofs
 
-An interesting edge case arises when the same UTXO appears in more than one input.  If that happens, we also enter the blame phase. 
+This is the first of the blame phases.  Using the ordering of identity keys it received in the previous message, the ordering of each players' list commitment from phase 3, and the logic of the sharding grid, each player will create 10 proofs.  Each proof is of the form:
 
-Message 6 (from server) `<MESSAGE TYPE><POOL SESSION_ID>`
+`<INPUT><SECRET_SALT_VALUE>`
 
-This is just a junction that tells the server to continue with blame phases.
+This proof is then encrypted by the verifying player’s key, based on the sharding grid, and sent as:
 
-## Phase 7. Announce Ordering
+Message 6 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><IDENTITY_KEY><ENCRYPTED_PROOF_1>...<ENCRYPTED_PROOF_10><IDENTITY_SIGNATURE>`
 
-Once the server knows we're in the blame portion, it creates a random order for the players.
 
-Message 7 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME_PUBKEY_PLAYER 1>...<BLAME_PUBKEY_PLAYER 11>`  
+## Phase 7. Share and Validate Proofs
 
-The Blame Pubkey is included in the payload, which helps to identify each player, while the ordering of the message itself refelects the ordering of the players.
+If we consider each player's payload from the previous Message 6 as:
 
-## Phase 8. Send Proofs
+`<IDENTITY_KEY><ENCRYPTED_PROOF_1>...<ENCRYPTED_PROOF_10><IDENTITY_SIGNATURE>`
 
-Each player will create 10 “proofs”.  Each proof shall consist of the X ,A, and k values (described in the commitment scheme), where X is the signed serialized input, A is a secret number, and k is the public "commitment key". The entire proof is encrypted by the verifying player’s key, based on the sharding grid.
+Then Message 7 is simply the server rebroadcasting all payloads to all players.
 
-Message 8 (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG_FOR_BLAME_PUBKEY><PROOF 1>...<PROOF 10>`
+Message 7 (from server): `<MESSAGE_TYPE><POOL_SESSION_ID><PAYLOAD_1>...<PAYLOAD_11>`
 
-## Phase 9. Share and Validate Proofs
+After reciving Message 7, the client will extract the proofs that it is responsible for, and checks each one.    If the client finds any issues with either the transaction inputs, it assigns blame. 
 
-Then the server sends to all:
+## Phase 8. Assign Blame
 
-Message 9 (from server): `<MESSAGE TYPE><POOL_SESSION_ID><SIG FOR BLAME PUBKEY PLAYER 1><PROOF 1>...<PROOF 9>...<BLAME PUBKEY Player 11><PROOF 1>...<PROOF 10>`
+To assign blame, the client simply sends a message to the server with the `<FAULTY_SALTED_HASH>`, which is the salted hash they were attemping to verify but could not. 
 
-After reciving Message 9, the client will extract the proofs that it is responsible for, and checks each one.    If the client finds any issues with either the transaction inputs, it assigns blame. 
+Message 8A (from client): `<MESSAGE_TYPE><POOL_SESSION_ID><IDENTITY_KEY><FAULTY_SALTED_HASH><IDENTITY_SIGNATURE>`
 
-## Phase 10. Assign Blame
+Then the server rebroadcasts the information:
 
-First the client notifies the server:
+Message 8B (from server) `<MESSAGE_TYPE><POOL_SESSION_ID><IDENTITY_KEY><FAULTY_SALTED_HASH><IDENTITY_SIGNATURE>`
 
-Message 10A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
+If the server receives several instance of Message 8A, it can ignore the subsequent messages and simply rebroadcast 8B based on the first instance of blame it sees.  
 
-Then the server notifies all clients with a similar message:
+Regarding the edge cases of multiple inputs with the same UTXO:  They are mostly all handled by entering the blame phases upon witnessing them.  However, there is one particular case that needs special treatment, and that is when Alice produces **multiple valid signed inputs**.  In this case, the client still sends Message 8A as normal, but all clients need to be aware when edge case is in play.  That way, if Alice attempts to counter-blame,  clients can still award blame to Alice when checking her claim.  (Even though she might have a valid counter-proof, she cheated by submitting multiple UTXO).  
 
-Message 10B (from server) `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><INPUT INDEX TO BE BLAMED>`
+Note that this edge case must have multiple **valid signed** inputs.  In the case when 2 or more inputs share the same UTXO but only 1 is valid, the protocol proceeds with a normal blame message since there is no ambiguity.
 
-If the server receives several instance of Message 10A, it should only pick one input to be blamed (for example the lowest one by lexicographical order).  
+## Phase 9. Counter-Blame
 
-In the "repeated UTXO" edge case (which we mentioned in phase 6), the mere presence of 2 valid signed inputs indicates maliciousness; it is not necessary to specifically determine which members of this set satisfy their commitments.  Instead, clients should assign blame via Message 10A if they receive any proof containing such a repeat.  Nothing special is required to indicate the edge case because all players will see the duplicated UTXO.  When the message comes in blaming the index, the other clients will understand the reason and do not even have to verify the blame message's accuracy as they usually would do.  (This special kind of blame cannot be refuted.)
+If Alice blames Bob but Bob is innocent, then Bob can refute the blame while counter-blaming Alice.  He does that by sharing his ephemeral "communciation" private key for the input in question.  Again, it is not possible for Alice to counterblame in the special case where she signed multiple inputs using the same utxo.
 
-Note that this edge case must have multiple **valid signed** inputs.  In the case when 2 or more inputs share the same UTXO but only 1 is valid, the protocol proceeds with a normal blame message.
-
-## Phase 11. Refute Blame
-
-For the normal case of an invalid proof:  if Alice blames Bob, but Bob is innocent, Bob can refute the blame, while counter-blaming the accuser (Alice).  He does that by sharing his ephemeral private key.
-
-Message 11A (from client): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 9A (from client): `<MESSAGE_TYPE><POOL_SESSION_ID><IDENTITY_KEY><COMMUNICATION_PRIVATE_KEY><IDENTITY_SIGNATURE>`
 
 The server can then rebroadcast the same message
 
-Message 11B (from server): `<MESSAGE TYPE><POOL_SESSION_ID><BLAME PUBKEY><SIG BLAME PUBKEY><EPHEMERAL PRIVATE KEY>`
+Message 9B (from server):  `<MESSAGE_TYPE><POOL_SESSION_ID><IDENTITY_KEY><COMMUNICATION_PRIVATE_KEY><IDENTITY_SIGNATURE>`
 
-## Phase 12: Process Blame
+## Phase 10: Process Blame
 
-After determing who is to blame, the client and server should terminate the round.
-
-# Further Discussion
-
-This document is still evolving.  In no particular order, here are a few points which can be clarified:
-
-**1. Announcement of Outputs**
-
-It may not be clear why outputs are announced at the beginning, but there doesn't appear to be a better way to do it.  For example, including the output in the sharding grid as just another part of the transaction doesn't work well because a new set of problems arises should a malicious actor include an extra output.  
+After determing who is to blame, the client and server should execute any additional anti-DOS measures, and terminate the round.
  
-**2. Pool Size**
-
-The same scheme would work with a smaller number of players, and this may be necessary for a time if liquidity is insufficient, while providing some additional privacy.  In the medium-long term, we should strive toward the full 10 players in order to achieve statistically unlinkable inputs.
-
-**3. Wallet Considerations**
-
-When shaving inputs in preparation for a fusion transaction, the wallet should take care to avoid having the standardized output naively marked as "unshuffled", leading to a reshuffling attempt in the normal CashShuffle protocol, and disrupting the fusion.  Also, the change portion of the shaved amount *should* be marked as unshuffled so it can be put into a CashShuffle round.
-
-As a separate development effort, or in the future, we may want to add additional flagging and coin control to best direct the wallet how and when to perform fusions, in order to maximize privacy and UX.
-
-**4. DOS Attacks**
-
-CashFusion provides a structure that theoretically allows blame to be assigned to disruptive parties, but there are different ways this can be implemented.  One issue is that when clients keep changing their IP address over TOR, as required by this protocol, banning IPs becomes ineffective.  In the simplest implementation, blame is assigned but is irrelevant because the only action taken is to terminate the round anyway.  Unless the network is under heavy attack, eventually the transactions will succeed due to randomness (eventually only honest players will be in a round together)
-
-In more sophisticated implementations of CashFusion, the offending player can be removed and a replacement player can be added.  An even stronger anti-DOS scheme would involve recursively shrinking the pool size each time someone is blamed, similar to coinshuffle++.  It is also possible for players to reveal all the inputs of the blamed player and utilize UTXO-level banning. 
