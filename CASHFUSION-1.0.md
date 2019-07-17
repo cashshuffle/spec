@@ -1,6 +1,8 @@
 # CashFusion
 
 Authors: Jonald Fyookball, Mark B. Lundeberg
+
+Version 1.0
    
 ## Introduction
 
