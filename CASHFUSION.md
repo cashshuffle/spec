@@ -12,7 +12,7 @@ CashShuffle is a powerful tool for obfuscating the origin of a coin.  However, a
 
 We propose a blind verification scheme in which each input and output is validated by a random player, using a series of cryptographic commitments that allow an uncooperative participant to be identified and banned.
 
-CashFusion allows flexibility by allowing each participant to use an essentially arbitrary number of inputs and outputs, of arbitrary amounts.  And it provides anonymous, trustless coordination with zero-knowledge of linkages revealed to other players or the server, in most cases. 
+CashFusion provides high levels of privacy via flexible scheme that allows an arbitrary number of inputs and outputs of non-standard amounts.  It provides anonymous, trustless coordination with usually zero-knowledge of linkages revealed to other players or the server.
 
 # PART I: Protocol Overview
 
