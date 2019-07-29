@@ -18,7 +18,7 @@ CashFusion provides high levels of privacy via a flexible scheme that allows an 
 
 To review the big picture, the final result is a large coinjoin transaction with many participants and many inputs and outputs.  In the simplest form, this is achieved by players covertly sending their transaction components (inputs and outputs) to the server.  The server then shares all the information with all players, the players sign all their inputs, then (covertly) send them back to the server, and finally the server again shares with everyone so that all players have everything necessary to assemble a valid transaction.
 
-But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, then proceed to covertly announce their transaction components to the server over TOR so the server.
+But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, then proceed to covertly announce their transaction components to the server over TOR.
 
 It there is a problem with the transaction, each component is assigned to another player at random for verification.  The owner of the component sends the secret information, encrypted with one of the communication keys that's paried with each commitment.
 
@@ -294,7 +294,7 @@ Instead of sharing lists of component commitments with the server, the component
 
 For each commitment, a random subset of players (including the actual owner) each produce a random number and join a round of multiparty computation to sum their secrets,  and commit to the numbers under a homomorphic encryption scheme.  A player will choose an even number if he is not the owner, and an odd number if he is.  
 
-The normal fusion verification process is performed, and when a faulty component commitment is found, the non-owner participants of the mcp reveal their commitments along with the homomorphic sum.  By simple subtraction, the owner is revealed to have commited to an odd number.
+The normal fusion verification process is performed, and when a faulty component commitment is found, the non-owner participants of the mpc reveal their commitments along with the homomorphic sum.  By simple subtraction, the owner is revealed to have commited to an odd number.
 
 The dishonest disrupter can attempt to avoid this by not participating in some rounds or falsely submitting the wrong information, but then these commitments will be retried and anti-DOS countermeasures taken, perhaps including another homomorphic operation showing each player committed to ownership of some number of inputs.
 
