@@ -78,7 +78,7 @@ Message 2 (from server to a specific client): `<MESSAGE_TYPE><BLIND_SIGNATURE_PU
 
 ## Phase 3.  Player Commitments
 
-In this phase, the player sends a message containing 23 commitments to the server (one for each of their transaction components).  Each commitment is a tuple consisting of a salted SHA-256 hash of their component, an ephemeral "communication" public key, and the (Pedersen) amount commitment for the component.  Additionally, there is a SHA-256 hash of random number which serves as a random number commitment from the player.
+In this phase, the player sends a message containing 23 commitments to the server (one for each of their transaction components).  Each commitment is a tuple consisting of a salted SHA-256 hash of their component, an ephemeral "communication" public key, and the (Pedersen) amount commitment for the component.  Additionally, there is a SHA-256 hash of random number which serves as a random number commitment from the player, and finally: the combined Pedersen secret value.
 
 Message 3 (from client to server): `<MESSAGE_TYPE><PAYLOAD_1>...<PAYLOAD_23><BLIND_SIGNATURE_REQUEST_1>...<BLIND_SIGNATURE_REQUEST_23><RANDOM_NUMBER_COMMITMENT><COMBINED_PEDERSEN_SECRET_VALUE>`
 
