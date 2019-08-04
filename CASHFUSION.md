@@ -18,7 +18,7 @@ CashFusion provides high levels of privacy via a flexible scheme that allows an 
 
 To review the big picture, the final result is a large coinjoin transaction with many participants and many inputs and outputs.  In the simplest form, this is achieved by players covertly sending their transaction components (inputs and outputs) to the server.  The server then shares all the information with all players, the players sign all their inputs, then (covertly) send them back to the server, and finally the server again shares with everyone so that all players have everything necessary to assemble a valid transaction.
 
-But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, then proceed to covertly announce their transaction components to the server over TOR.
+But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, they then proceed to covertly announce their transaction components to the server over TOR.
 
 It there is a problem with the transaction, each component is assigned to another player at random for verification.  The owner of the component sends the secret information, encrypted with one of the communication keys that's paried with each commitment.
 
