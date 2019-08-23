@@ -20,19 +20,19 @@ To review the big picture, the final result is a large coinjoin transaction with
 
 But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, they then proceed to covertly announce their transaction components to the server over TOR.
 
-It there is a problem with the transaction, each component is assigned to another player at random for verification.  The owner of the component sends the secret information, encrypted with one of the communication keys that's paried with each commitment.
+If there is a problem with the transaction, each component is assigned to another player at random for verification.  The owner of the component sends the secret information, encrypted with one of the communication keys that's paired with each commitment.
 
-To prevent players from cheating by using the same component in multiple commitments ( by hashing it with a different salt),  the salt value itself  is also hashed and paired  with the covert announcement of the transaction component.
+To prevent players from cheating by using the same component in multiple commitments (by hashing it with a different salt), the salt value itself is also hashed and paired with the covert announcement of the transaction component.
 
-If there is a problem during verification, the verifier reveals his private  communication key to the server, and the server determines whether to blame the accused or the accuser.
+If there is a problem during verification, the verifier reveals his private communication key to the server, and the server determines whether to blame the accused or the accuser.
 
 Finally, to prevent DOS attacks, the blame mechanism will kick out the bad player and attempt the round again with one less player.  The process can be repeated as many times as desired.
 
 ## Inputs
 
-The scheme described so far would generally be sufficient to provide trustless coinjoins with multiple inputs.  However, it would have strict limitations of requiring fixed input amounts and a single output. 
+The scheme described so far would generally be sufficient to provide trustless coinjoins with multiple inputs.  However, it would have strict limitations of requiring fixed input amounts and a single output.
 
-The challenge with variable input amounts is ensuring  every player contributed sufficient funds to cover their outputs. 
+The challenge with variable input amounts is ensuring every player contributed sufficient funds to cover their outputs. 
 
 To solve this, a set of Pedersen commitments are utilized. Using  its homomorphic property, the server can ensure the sum of inputs and outputs for each player is zero, without knowing any of the values. And, each input or output that is verified will be also cross-checked against its paired amount commitment, thus linking the component commitment to the amount commitment in a simple way.
 
@@ -40,13 +40,13 @@ Inputs are represented by a positive integer indicating the number of satoshis, 
 
 ## Outputs
 
-Allowing a flexible number of outputs presents its own challenge. Whereas inputs could  be signed over all outputs and "extra" inputs ignored, extra outputs would invalidate the transaction and are hard to detect and blame when announced covertly.
+Allowing a flexible number of outputs presents its own challenge. Whereas inputs could be signed over all outputs and "extra" inputs ignored, extra outputs would invalidate the transaction and are hard to detect and blame when announced covertly.
 
 To solve this, we utilize 2 more puzzle pieces:  blind signatures, and "blank" placeholder components.
 
 Here, blind signatures function like a submission "token" that is required with ALL covert announcements (not just outputs) , as follows:  Players blind a message (the message is the transaction component plus the salt commitment) and present the blinded message to the server for signing.  Since it is blinded, the server doesn't know the actual contents of the transaction component.
 
-When attempting a covert announcement, the player unblinds the message and the server can verify their signature matches the message.  The server is prevented from learning any linkages but it does set a known limit on how many "components" each player is submitting. 
+When attempting a covert announcement, the player unblinds the message and the server can verify if their signature matches the message.  The server is prevented from learning any linkages but it does set a known limit on how many "components" each player is submitting. 
 
 Next, we set a requirement that each player must covertly announce exactly 23 components.  Why 23?  It could be anything, but this allows for example 8 outputs and 15 inputs.  By forcing each player to commit to exactly 23 components, this prevents Alice from submitting anything extra because the server won't accept the same signature more than once and will disallow the covert announcement.
 
@@ -167,7 +167,7 @@ Message 9B (from server to all clients): `<MESSAGE_TYPE><COMMITMENT_1><PROOF_1>.
 
 ## Phase 10. Blame
 
-If a player doesn't receive any proof for any of the commitments the server assigned to hm in phase 8, or if the proof is incorrect, blame is issued: 
+If a player doesn't receive any proof for any of the commitments the server assigned to him in phase 8, or if the proof is incorrect, blame is issued: 
 
 Message 10A (from client to server): `<MESSAGE_TYPE><FAULTY_COMMITMENT><COMMITMENT_OF_BLAMER><BLAME_REASON><PRIVATE_KEY>`
 
@@ -241,7 +241,7 @@ In CashFusion, we have opted to abandon the equal-amount concept altogether. Whi
 
 Consider a transaction where 10 people have each brought 10 inputs of arbitary amounts in the neighborhood of ~0.1 BCH. One input might be 0.03771049 BCH; the next might be 0.24881232 BCH, etc. All parties have chosen to consolidate their coins, so the transaction has 10 outputs of around 1 BCH. So the transaction has 100 inputs, and 10 outputs. The first output might be 0.91128495, the next could be 1.79783710, etc. 
 
-Now, there are 100!/(10!)^10 ~= 10^92 ways to partition the inputs into a list of 10 sets of 10 inputs, but only a tiny fraction of these partitions will produce the precise output list. So, how many ways produce this exact output list? We can estimate with some napkin math. First, recognize that for each partitioning, each output will typically land in a range of ~10^8 discrete possibilities (around 1 BCH wide, with a 0.00000001 BCH resolution). The first 9 outputs all have this range of possibilities,  and the last will be contstrained by the others. So, the 10^92 possibilies will land somewhere within a 9-dimensional grid that cointains (10^8)^9=10^72 possible distinct sites, one site which is our actual output list. Since we are stuffing 10^92 possibilties into a grid that contains only 10^72 sites, then this means on average, each site will have 10^20 possibilities.
+Now, there are 100!/(10!)^10 ~= 10^92 ways to partition the inputs into a list of 10 sets of 10 inputs, but only a tiny fraction of these partitions will produce the precise output list. So, how many ways produce this exact output list? We can estimate with some napkin math. First, recognize that for each partitioning, each output will typically land in a range of ~10^8 discrete possibilities (around 1 BCH wide, with a 0.00000001 BCH resolution). The first 9 outputs all have this range of possibilities,  and the last will be constrained by the others. So, the 10^92 possibilies will land somewhere within a 9-dimensional grid that cointains (10^8)^9=10^72 possible distinct sites, one site which is our actual output list. Since we are stuffing 10^92 possibilties into a grid that contains only 10^72 sites, then this means on average, each site will have 10^20 possibilities.
 
 Based on the example above, we can see that not only are there a huge number of partitions, but that even with a fast algorithm that could find matching partitions, it would produce around 10^20 possible valid configurations. With 10^20 possibilities, there is essentially no linkage. The Cash Fusion scheme actually extends this obfuscation even further. Not only can players bring many inputs, they can also have multiple outputs. 
 
