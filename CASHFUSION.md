@@ -34,7 +34,7 @@ The scheme described so far would generally be sufficient to provide trustless c
 
 The challenge with variable input amounts is ensuring every player contributed sufficient funds to cover their outputs.
 
-To solve this, a set of Pedersen commitments are utilized. Using  its homomorphic property, the server can ensure the sum of inputs and outputs for each player is zero, without knowing any of the values. And, each input or output that is verified will be also cross-checked against its paired amount commitment, thus linking the component commitment to the amount commitment in a simple way.
+To solve this, a set of Pedersen commitments are utilized. Using  its homomorphic property, the server can ensure the sum of inputs minus outputs for each player is zero, without knowing any of the values. And, each input or output that is verified will be also cross-checked against its paired amount commitment, thus linking the component commitment to the amount commitment in a simple way.
 
 Inputs are represented by a positive integer indicating the number of satoshis, and outputs by a negative integer. Fees are handled elegantly by subtracting a standard amount from an input or adding a standard amount to an output. For example, if an input is 10,000 satoshis and the standard fee for an input is 150 satoshis, the Pedersen commitment should be for 9850.  This idea can be extended to allow players to add extra fees by relaxing the rule to allow the commit to be less than or equal to the expected value. (e.g. x <= 9850).
 
