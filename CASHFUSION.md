@@ -69,7 +69,7 @@ Clients connect to the server and download a list of parameters:
 
 The clients then attempt to construct a fusion contribution for each tier: for their given inputs, make a list of random outputs that sum to those inputs less fees. If the tier size is too large or too small, this process will fail (too many or too few outputs). The client then indicates to the server, which tiers are of interest.
 
-Each tier forms a separate 'waiting pool', though a client can wait in multiple pools simultaneously. Once enough players have joined a given pool, the server moves pulls those clients out of all pools, and then moves the clients into the fusion process at the filled tier.
+Each tier forms a separate 'waiting pool', though a client can wait in multiple pools simultaneously. Once enough players have joined a given pool, the server pulls those clients out of all pools, and then moves the clients into the fusion process at the filled tier.
 
 ## Phase 2.  Start Round
 
