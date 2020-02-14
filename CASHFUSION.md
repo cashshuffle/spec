@@ -44,7 +44,7 @@ Allowing a flexible number of outputs presents its own challenge. Whereas inputs
 
 To solve this, we utilize 2 more puzzle pieces:  blind signatures, and "blank" placeholder components.
 
-Here, blind signatures function like a submission "token" that is required with ALL covert announcements (not just outputs) , as follows:  Players blind a message (the message is the transaction component plus the salt commitment) and present the blinded message to the server for signing.  Since it is blinded, the server doesn't know the actual contents of the transaction component.
+Here, blind signatures function like a submission "token" that is required with ALL covert announcements (not just outputs) , as follows:  Players blind a message (the message is the transaction component) and present the blinded message plus the salt commitment to the server for signing.  Since it is blinded, the server doesn't know the actual contents of the transaction component.
 
 When attempting a covert announcement, the player unblinds the message and the server can verify if their signature matches the message.  The server is prevented from learning any linkages but it does set a known limit on how many "components" each player is submitting.
 
