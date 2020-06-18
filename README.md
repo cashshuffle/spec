@@ -4,9 +4,9 @@
 
 ## Introduction
 
-[CoinShuffle overview](http://crypsys.mmci.uni-saarland.de/projects/CoinShuffle/)
+[CoinShuffle overview](https://web.archive.org/web/20191027183101/http://crypsys.mmci.uni-saarland.de/projects/CoinShuffle/)
 
-[CoinShuffle paper](http://crypsys.mmci.uni-saarland.de/projects/CoinShuffle/coinshuffle.pdf)
+[CoinShuffle paper](https://www.darrentapp.com/pdfs/coinshuffle.pdf)
 
 ## Implementations
 
