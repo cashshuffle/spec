@@ -18,7 +18,7 @@ CashFusion provides high levels of privacy via a flexible scheme that allows an 
 
 To review the big picture, the final result is a large coinjoin transaction with many participants and many inputs and outputs.  In the simplest form, this is achieved by players covertly sending their transaction components (inputs and outputs) to the server.  The server then shares all the information with all players, the players sign all their inputs, then (covertly) send them back to the server, and finally the server again shares with everyone so that all players have everything necessary to assemble a valid transaction.
 
-But, in order add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, they then proceed to covertly announce their transaction components to the server over Tor.
+But, in order to add the blame capabilities (to allow banning a user who didn't sign all her inputs), each player first creates a salted hash of each of his inputs and outputs, and sends them to the server.  Once all the players have joined the pool and have sent their commitments, they then proceed to covertly announce their transaction components to the server over Tor.
 
 If there is a problem with the transaction, each component is assigned to another player at random for verification.  The owner of the component sends the secret information, encrypted with one of the communication keys that's paired with each commitment.
 
@@ -34,7 +34,7 @@ The scheme described so far would generally be sufficient to provide trustless c
 
 The challenge with variable input amounts is ensuring every player contributed sufficient funds to cover their outputs.
 
-To solve this, a set of Pedersen commitments are utilized. Using  its homomorphic property, the server can ensure the sum of inputs and outputs for each player is zero, without knowing any of the values. And, each input or output that is verified will be also cross-checked against its paired amount commitment, thus linking the component commitment to the amount commitment in a simple way.
+To solve this, a set of Pedersen commitments are utilized. Using  its homomorphic property, the server can ensure the sum of inputs minus outputs for each player is zero, without knowing any of the values. And, each input or output that is verified will be also cross-checked against its paired amount commitment, thus linking the component commitment to the amount commitment in a simple way.
 
 Inputs are represented by a positive integer indicating the number of satoshis, and outputs by a negative integer. Fees are handled elegantly by subtracting a standard amount from an input or adding a standard amount to an output. For example, if an input is 10,000 satoshis and the standard fee for an input is 150 satoshis, the Pedersen commitment should be for 9850.  This idea can be extended to allow players to add extra fees by relaxing the rule to allow the commit to be less than or equal to the expected value. (e.g. x <= 9850).
 
@@ -69,7 +69,7 @@ Clients connect to the server and download a list of parameters:
 
 The clients then attempt to construct a fusion contribution for each tier: for their given inputs, make a list of random outputs that sum to those inputs less fees. If the tier size is too large or too small, this process will fail (too many or too few outputs). The client then indicates to the server, which tiers are of interest.
 
-Each tier forms a separate 'waiting pool', though a client can wait in multiple pools simultaneously. Once enough players have joined a given pool, the server moves pulls those clients out of all pools, and then moves the clients into the fusion process at the filled tier.
+Each tier forms a separate 'waiting pool', though a client can wait in multiple pools simultaneously. Once enough players have joined a given pool, the server pulls those clients out of all pools, and then moves the clients into the fusion process at the filled tier.
 
 ## Phase 2.  Start Round
 
