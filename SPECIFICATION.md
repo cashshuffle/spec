@@ -21,7 +21,7 @@ In order to avoid client identification and ensure compatibility:
 
 ## Protobuf payload
 
-- The client and server should communicate according to the [protobuf specification](https://github.com/Electron-Cash/Electron-Cash/blob/master/plugins/shuffle/protobuf/message.proto) for messages.
+- The client and server should communicate according to the [protobuf specification](https://github.com/Electron-Cash/Electron-Cash/blob/master/plugins/shuffle_deprecated/protobuf/message.proto) for messages.
 - The server should only receive messages of the `Packets` type.
 
 Example payload content for client registering with the server:
